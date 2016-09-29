@@ -1,7 +1,7 @@
 ## 아두이노 미니게임기(가제)
 
 ### 구성도
-![structure](http://imgur.com/DJUOq0a)
+![structure](http://i.imgur.com/DJUOq0a.jpg =500x)
 
 
 ### 부품 목록
