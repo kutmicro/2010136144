@@ -12,7 +12,7 @@
 |     |Mega 2560|Gameboy|
 |:----|:--------:|:----:|
 |CPU| 8-bit 16MHz  |   8-bit 4.19MHz   |
-|SRAM| 8KB  |8KB      |
+|RAM| 8KB SRAM |8KB SRAM    |
 |Display| 128X64 OLED  |   160X144 LCD  |
 
 <br/>
