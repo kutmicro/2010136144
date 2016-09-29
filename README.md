@@ -15,8 +15,9 @@
 |SRAM| 8KB  |8KB      |
 |Display| 128X64 OLED  |   160X144 LCD  |
 
+<br/>
 
-### 구성도<br/>
+### 구성도
 <img src="http://i.imgur.com/sSq7SiD.jpg" width="800">
 
 
