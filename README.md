@@ -17,7 +17,7 @@
 
 
 ### 구성도<br/>
-<img src="blob:http://imgur.com/70924227-67b3-4b46-a14e-0599ee8bdd29" width="800">
+<img src="http://i.imgur.com/sSq7SiD.jpg" width="800">
 
 
 ### 부품 목록
