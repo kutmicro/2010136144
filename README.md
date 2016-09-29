@@ -30,4 +30,4 @@
 2. 조작버튼( 방향키, a,b 버튼) 
   * (9,300원) http://www.devicemart.co.kr/1313113
 3. 스피커
-  * https://www.devicemart.co.kr/1311847
+  * (6,300원)https://www.devicemart.co.kr/1311847
