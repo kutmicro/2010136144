@@ -27,7 +27,7 @@
 
 ### 부품 목록
 
-1. OLED
+1. OLED <br/>
   ~~* (품절 / 1.3inch / 128x64 / 3~5V) http://www.devicemart.co.kr/1278713~~
   * (1.3inch/ 128x64 / 3.3~5V / 9,700원) http://www.eleparts.co.kr/EPXDYVCA
   ~~* (0.96ich / 128x64 / 5V) http://www.devicemart.co.kr/1311755~~
