@@ -35,3 +35,7 @@
  * (9,300원) http://www.devicemart.co.kr/1313113
 3. 피에조 부저
  * (BPE-1407P-40 / 300원)http://www.devicemart.co.kr/32840
+
+
+###
+라이브러리 Adafruit GFX 1.1.3v 사용해야함.
