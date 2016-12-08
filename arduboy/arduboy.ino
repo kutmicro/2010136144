@@ -25,6 +25,12 @@ int balls = 1;
 int ballPointX = 64;
 int ballPointY = 64;
 
+//methods
+//menu methods
+void drawMenu();
+void updateMenu();
+
+
 void draw(void)
 {
   // graphic commands to redraw the complete screen should be placed here
@@ -36,50 +42,41 @@ void setup(void)
 
   u8g.setContrast(0); // Config the contrast to the best effect
   u8g.setRot180();    // rotate screen, if required
-  // set SPI backup if required
-  //u8g.setHardwareBackup(u8g_backup_avr_spi);
 
-  //  // assign default color value
-  //  if ( u8g.getMode() == U8G_MODE_R3G3B2 ) {
-  //    u8g.setColorIndex(255);     // white
-  //  }
-  //  else if ( u8g.getMode() == U8G_MODE_GRAY2BIT ) {
-  //    u8g.setColorIndex(3);         // max intensity
-  //  }
-  //  else if ( u8g.getMode() == U8G_MODE_BW ) {
-  //    u8g.setColorIndex(1);         // pixel on
-  //  }
-  //  else if ( u8g.getMode() == U8G_MODE_HICOLOR ) {
-  //    u8g.setHiColorByRGB(255,255,255);
-  //  }
+        u8g.firstPage();
+      do
+      {
+        drawMenu();
+      } while (u8g.nextPage());//      u8g.firstPage();
+
 }
 
 void loop(void)
 {
   //check game status
   //if gameStatus is menu
-  if (gameStatus == STATUS_MENU)
-  {
-    if (menu_redraw_required != 0) {
-      u8g.firstPage();
-      do
-      {
-        drawMenu();
-      } while (u8g.nextPage());
-    }
-    updateMenu();
-  }
-  else if (gameStatus == STATUS_PLAYING)
-  {
-
-  }
-  else if (gameStatus == STATUS_RECORD)
-  {
-
-  }
-  else if (gameStatus == STATUS_RESULT) {
-
-  }
+  //  if (gameStatus == STATUS_MENU)
+  //  {
+  //    if (menu_redraw_required != 0) {
+  //      u8g.firstPage();
+  //      do
+  //      {
+  //        drawMenu();
+  //      } while (u8g.nextPage());
+  //    }
+  //    updateMenu();
+  //  }
+  //  else if (gameStatus == STATUS_PLAYING)
+  //  {
+  //
+  //  }
+  //  else if (gameStatus == STATUS_RECORD)
+  //  {
+  //
+  //  }
+  //  else if (gameStatus == STATUS_RESULT) {
+  //
+  //  }
 }
 
 //draw_menu
