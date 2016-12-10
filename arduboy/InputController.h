@@ -1,6 +1,5 @@
 #include <Arduino.h>
 
-
 //pin define
 #define JOYSTICK_PIN 0
 #define BUTTON_A_PIN 2
@@ -12,6 +11,7 @@
 #define UP 825
 #define DOWN 409
 #define PUSH 205
+#define NIG 1023
 
 class InputController{
   public:
