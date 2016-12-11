@@ -1,6 +1,7 @@
 #include <U8glib.h>
 #include "InputController.h"
 #include "GameManager.h"
+#include "Img.h"
 
 U8GLIB_NHD_C12864 u8g(13, 11, 10, 9, 8); // SPI Com: SCK = 13, MOSI = 11, CS = 10, CD = 9, RST = 8
 
@@ -87,7 +88,12 @@ void loop(void)
     //플레이 화면
     else if (gameManager.getGameStatus() == STATUS_PLAYING)
     {
-      u8g.drawStr(0, 0, "Game Playing");
+      u8g.firstPage();
+        do
+        {
+          drawMap();//show paying display
+          drawMines();
+        } while (u8g.nextPage());
     }
     //결과 화면
     else if (gameManager.getGameStatus() == STATUS_RESULT)
@@ -142,7 +148,9 @@ void updateMenu(void)
     menu_redraw_required = 1;
   }
   else if (push) {
-    if (menu_current == 0) gameManager.setGameStatus(STATUS_PLAYING);
+    if (menu_current == 0){
+      gameManager.setGameStatus(STATUS_PLAYING);
+    }
     else if (menu_current == 1) {
       //game load
     }
@@ -159,4 +167,24 @@ void initInputs() {
   aBut = false;
   bBut = false;
 }
+
+void drawMap(){
+  for(int i=0; i<BLOCK_X_NUM; i++){
+    for(int j=0; j<BLOCK_Y_NUM; j++){
+      u8g.drawFrame(MAP_LEFT_MARGIN + i*BLOCK_WIDTH,j*BLOCK_HEIGHT, 16, 16);    
+    }
+  }
+}
+
+void drawMines(){
+  for(int i=0; i<BLOCK_X_NUM; i++){
+    for(int j=0; j<BLOCK_Y_NUM; j++){
+      u8g.drawXBM(MAP_LEFT_MARGIN + 4 + i*BLOCK_WIDTH,j*BLOCK_HEIGHT + 4, MINE_WIDTH, MINE_HEIGHT, mineXBM); 
+    }
+  }
+  
+}
+
+
+
 

@@ -12,3 +12,4 @@ int GameManager::getGameStatus(){
 void GameManager::setGameStatus(int gameStatus){
     this->gameStatus = gameStatus; 
 }
+
