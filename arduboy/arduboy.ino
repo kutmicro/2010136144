@@ -14,7 +14,7 @@ bool up, down, left, right, push, aBut, bBut;
 
 int lastInput;
 unsigned long lTime;
-int gameFps = 1000 / 10;
+int gameFps = 1000 / 30;
 
 #define MENU_ITEMS 3
 char *menu_strings[MENU_ITEMS] = {"Game Start", "Load Game", "Record"};
@@ -26,6 +26,8 @@ int menu_redraw_required = 0;
 void drawMenu();
 void updateMenu();
 
+
+static int mines[MINE_ROW][MINE_COL] = {{0}};
 
 void draw(void)
 {
@@ -51,8 +53,8 @@ void loop(void)
 {
   //get input
   int input = inputController.getInput();
-  
-//  Serial.println(lastInput);
+
+  //  Serial.println(lastInput);
   //연속 입력을 방지하기 위해서
   //마지막 입력이 아무 입력도 없을 때 입력이 있는 것으로 간주
   if (lastInput == NIG) {
@@ -71,7 +73,7 @@ void loop(void)
     lTime = millis();
 
 
-    //로고화면 띄우기
+    //메뉴화면
     if (gameManager.getGameStatus() == STATUS_MENU)
     {
       updateMenu(); // outside picture loop
@@ -88,12 +90,45 @@ void loop(void)
     //플레이 화면
     else if (gameManager.getGameStatus() == STATUS_PLAYING)
     {
-      u8g.firstPage();
-        do
-        {
-          drawMap();//show paying display
+      int stageStatus = gameManager.getStageStatus();
+
+      //스테이지 정보 보여주는 화면 ex) Stage 1, Stage 2
+      if (stageStatus == STAGE_INFO) {
+        //show stage info
+        u8g.firstPage();
+        do {
+          drawStageIntro();
+        } while (u8g.nextPage());
+
+        gameManager.nextStageStatus();
+        delay(1500);
+      }
+      //지뢰 생성
+      else if (stageStatus == STAGE_INIT_MINE) {
+        initMines();
+        gameManager.nextStageStatus();
+      }
+      //지뢰 3초동안 보여주기
+      else if (stageStatus == STAGE_SHOW_MINE) {
+        u8g.firstPage();
+        do {
+          drawMap();
           drawMines();
         } while (u8g.nextPage());
+
+        delay(1000);
+        gameManager.nextStageStatus();
+        gameManager.nextStageStatus();
+      }
+      //지뢰 가리기
+      else if (stageStatus == STAGE_PLAYING) {
+        u8g.firstPage();
+        do {
+          drawMap();
+        } while (u8g.nextPage());
+
+      }
+      //캐릭터 이동 및 결과 처리
     }
     //결과 화면
     else if (gameManager.getGameStatus() == STATUS_RESULT)
@@ -147,14 +182,24 @@ void updateMenu(void)
     menu_current--;
     menu_redraw_required = 1;
   }
-  else if (push) {
-    if (menu_current == 0){
+  else if (push)
+  {
+    if (menu_current == 0)
+    {
       gameManager.setGameStatus(STATUS_PLAYING);
     }
-    else if (menu_current == 1) {
-      //game load
+    else if (menu_current == 1)
+    {
+      //TODO: game load하는 로직 추가
+
+      //로딩 완료 후 플레이 화면으로 이동
+      gameManager.setGameStatus(STATUS_PLAYING);
     }
-    else if (menu_current == 2) gameManager.setGameStatus(STATUS_RECORD);
+    else if (menu_current == 2)
+    {
+      //지금까지의 기록을 보여줌
+      gameManager.setGameStatus(STATUS_RECORD);
+    }
   }
 }
 
@@ -168,23 +213,69 @@ void initInputs() {
   bBut = false;
 }
 
-void drawMap(){
-  for(int i=0; i<BLOCK_X_NUM; i++){
-    for(int j=0; j<BLOCK_Y_NUM; j++){
-      u8g.drawFrame(MAP_LEFT_MARGIN + i*BLOCK_WIDTH,j*BLOCK_HEIGHT, 16, 16);    
+void drawMap() {
+  for (int i = 0; i < MINE_ROW; i++) {
+    for (int j = 0; j < MINE_COL; j++) {
+      u8g.drawFrame(MAP_LEFT_MARGIN + j * BLOCK_HEIGHT, i * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_HEIGHT);
     }
   }
 }
 
-void drawMines(){
-  for(int i=0; i<BLOCK_X_NUM; i++){
-    for(int j=0; j<BLOCK_Y_NUM; j++){
-      u8g.drawXBM(MAP_LEFT_MARGIN + 4 + i*BLOCK_WIDTH,j*BLOCK_HEIGHT + 4, MINE_WIDTH, MINE_HEIGHT, mineXBM); 
+void drawMines() {
+  for (int i = 0; i < MINE_ROW; i++) {
+    for (int j = 0; j < MINE_COL; j++) {
+      if (mines[i][j] == MINE) {
+        u8g.drawXBM(MAP_LEFT_MARGIN + 4 + j * BLOCK_WIDTH, i * BLOCK_HEIGHT + 4, MINE_WIDTH, MINE_HEIGHT, mineXBM);
+      }
+      else if (mines[i][j] == START) {
+        u8g.drawBox(MAP_LEFT_MARGIN + j * BLOCK_WIDTH, i * BLOCK_HEIGHT, 16, 16);
+      }
+      else if (mines[i][j] == END) {
+        u8g.drawXBM(MAP_LEFT_MARGIN + 4 + j * BLOCK_WIDTH, i * BLOCK_HEIGHT + 4, MINE_WIDTH, MINE_HEIGHT, endPointXBM);
+      }
     }
   }
-  
 }
 
+void drawStage() {
+
+  u8g.firstPage();
+  do {
+
+  } while (u8g.nextPage());
+}
+
+void drawStageIntro() {
+  int stage = gameManager.getStage();
+  //  std::string s = std::to_string(stage);
+  //  char const *pchar = s.c_str();  //use char const* as target type
+  char* str = "hahahahahah";
+  u8g.drawStr(0, 20, str);
+}
+
+void initMines() {
+  randomSeed(millis());
+  int s_i = random(0, 4); //0~3의 숫자는 시작 지점을 정하는 숫자
+  int s_j = 0;
+  int e_i;
+
+  int e_j = MINE_COL - 1;
+
+  do {
+    e_i = random(0, 4);
+  } while (s_i == e_i);
+
+  mines[s_i][s_j] = START;
+  mines[e_i][e_j] = END;
 
 
+  int k = random(1, 4);
+  for (int j = 1; j < 4; j++) {
+    int i = random(0, 4);
+    mines[i][j] = MINE;
+    if(k==j){
+      mines[(i+2)%4][j] = MINE;
+    }
+  }
+}
 
