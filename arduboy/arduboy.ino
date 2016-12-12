@@ -12,9 +12,18 @@ GameManager gameManager;
 //input flag
 bool up, down, left, right, push, aBut, bBut;
 
+//game datas
 int lastInput;
 unsigned long lTime;
 int gameFps = 1000 / 30;
+
+int startRow;   //player point
+int startCol;
+int endRow;     //end point
+int endCol;
+int currentRow; //current Point
+int currentCol;
+
 
 #define MENU_ITEMS 3
 char *menu_strings[MENU_ITEMS] = {"Game Start", "Load Game", "Record"};
@@ -122,9 +131,15 @@ void loop(void)
       }
       //지뢰 가리기
       else if (stageStatus == STAGE_PLAYING) {
+        //플레이어 이동 처리
+        movePlayer();
+        //이동한 지점이 지뢰인지, 도착점인지 체크
+//        checkArea();
+        //상황에 맞게 화면 업데이트
         u8g.firstPage();
         do {
           drawMap();
+
         } while (u8g.nextPage());
 
       }
@@ -237,6 +252,19 @@ void drawMines() {
   }
 }
 
+
+void movePlayer(){
+  if(left && currentCol>0){
+    currentCol--;
+  } else if(right && currentCol < MINE_COL-1){
+    currentCol++;
+  } else if(up && currentRow > 0){
+    currentRow--;
+  } else if(down && currentRow < MINE_ROW-1){
+    currentRow++;
+  }
+}
+
 void drawStage() {
 
   u8g.firstPage();
@@ -265,8 +293,17 @@ void initMines() {
     e_i = random(0, 4);
   } while (s_i == e_i);
 
+  //시작지점과 도착지점 설정
   mines[s_i][s_j] = START;
   mines[e_i][e_j] = END;
+
+  //시작지점과 도착지점을 변수로 저장
+  startRow = s_i;
+  startCol = s_j;
+  endRow = e_i;
+  endCol = e_j;
+  currentCol = s_j; //시작지점을 현재 위치로 설정
+  currentRow = s_i;
 
 
   int k = random(1, 4);
