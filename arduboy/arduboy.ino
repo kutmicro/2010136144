@@ -139,24 +139,33 @@ void loop(void)
         if (result == MINE) {
           //이동한 지점이 지뢰이면
           //모든 지뢰의 위치 보여줌
+          u8g.firstPage();
+          do {
+            drawMines();
+          } while (u8g.nextPage());
           //점수를 보여주고
           //기록을 경신했는지 확인
           //기록을 경신했으면 기록하는 화면을 띄워줌
           //          gameManager.setGameStatus()
         } else if (result == END) {
           //도착 지점에 도착하면 지도와 지뢰의 위치, 도착지점 보여줌
+          u8g.firstPage();
+          do {
+            drawMap();
+            drawMines();
+          } while (u8g.nextPage());
           //다음 스테이지로 이동
+          gameManager.clearStage(); //stage +1 증가
+          gameManager.nextStageStatus(); //
         } else {
+          //움직인 위치가 지뢰, 도착점이 아니면 그냥 플레이어를 표시
           u8g.firstPage();
           do {
             drawMap();
             drawPlayer();
           } while (u8g.nextPage());
         }
-        //상황에 맞게 화면 업데이트
-
       }
-      //캐릭터 이동 및 결과 처리
     }
     //결과 화면
     else if (gameManager.getGameStatus() == STATUS_RESULT)
@@ -300,6 +309,7 @@ void drawStage() {
   } while (u8g.nextPage());
 }
 
+//스테이지 시작 전 몇 스테이지인지 보여주는 화면
 void drawStageIntro() {
   int stage = gameManager.getStage();
   //  std::string s = std::to_string(stage);
@@ -319,6 +329,13 @@ void initMines() {
   do {
     e_i = random(0, 4);
   } while (s_i == e_i);
+
+  //배열 초기화
+  for(int i=0; i<MINE_ROW; i++){
+    for(int j=0; j<MINE_COL; j++){
+      mines[i][j] = EMPTY;
+    }
+  }
 
   //시작지점과 도착지점 설정
   mines[s_i][s_j] = START;

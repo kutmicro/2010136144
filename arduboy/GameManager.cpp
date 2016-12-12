@@ -24,7 +24,7 @@ int GameManager::getStageStatus() {
 
 void GameManager::nextStageStatus(){
   if(stageStatus == STAGE_PLAYING){
-    stageStatus == STAGE_INFO;
+    stageStatus = STAGE_INFO;
   } else{
     stageStatus++;
   }
