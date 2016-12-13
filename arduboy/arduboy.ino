@@ -1,4 +1,6 @@
+#include <EEPROM.h>
 #include <U8glib.h>
+
 #include "InputController.h"
 #include "GameManager.h"
 #include "Img.h"
@@ -61,6 +63,7 @@ void setup(void)
 
 void loop(void)
 {
+  Serial.println(EEPROM.length());
   //get input
   int input = inputController.getInput();
 
@@ -125,7 +128,7 @@ void loop(void)
           drawMines();
         } while (u8g.nextPage());
 
-        delay(1000);
+        delay(700);
         gameManager.nextStageStatus();
         gameManager.nextStageStatus();
       }
@@ -155,6 +158,9 @@ void loop(void)
             drawMines();
           } while (u8g.nextPage());
           //다음 스테이지로 이동
+          //1초동안 보여줌
+          delay(1000);
+          
           gameManager.clearStage(); //stage +1 증가
           gameManager.nextStageStatus(); //
         } else {
