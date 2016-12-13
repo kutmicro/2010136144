@@ -15,10 +15,15 @@ GameManager gameManager;
 bool up, down, left, right, push, aBut, bBut;
 
 //game datas
+#define EEP_SAVED_ADD 0
+#define EEP_BEST_ADD 1
+
 int lastInput;
 unsigned long lTime;
 int gameFps = 1000 / 30;
 
+int bestScore; //최고기록, 시작시 EEPROM에서 로드
+int savedScore; //마지막으로 저장한 기록, 시작 메뉴에서 불러오기 선택시 로드
 
 int startRow;   //player point
 int startCol;
@@ -29,7 +34,10 @@ int currentCol;
 
 
 #define MENU_ITEMS 3
-char *menu_strings[MENU_ITEMS] = {"Game Start", "Load Game", "Record"};
+#define SAVE_MENU_ITEMS 2
+char *menu_strings[MENU_ITEMS] = {"New Game", "Continue Game", "Best Score"};
+char *save_menu_strings[SAVE_MENU_ITEMS] = {"Continue", "Save & Quit"};
+
 uint8_t menu_current = 0;
 int menu_redraw_required = 0;
 
@@ -63,7 +71,7 @@ void setup(void)
 
 void loop(void)
 {
-  Serial.println(EEPROM.length());
+//  Serial.println(EEPROM.length());  -> 4096 = 4KB
   //get input
   int input = inputController.getInput();
 
@@ -144,11 +152,13 @@ void loop(void)
           //모든 지뢰의 위치 보여줌
           u8g.firstPage();
           do {
+            drawMap();
             drawMines();
           } while (u8g.nextPage());
           //점수를 보여주고
           //기록을 경신했는지 확인
           //기록을 경신했으면 기록하는 화면을 띄워줌
+          gameManager.setGameStatus(STATUS_RECORD);
           //          gameManager.setGameStatus()
         } else if (result == END) {
           //도착 지점에 도착하면 지도와 지뢰의 위치, 도착지점 보여줌
@@ -160,7 +170,7 @@ void loop(void)
           //다음 스테이지로 이동
           //1초동안 보여줌
           delay(1000);
-          
+
           gameManager.clearStage(); //stage +1 증가
           gameManager.nextStageStatus(); //
         } else {
@@ -176,10 +186,26 @@ void loop(void)
     //결과 화면
     else if (gameManager.getGameStatus() == STATUS_RESULT)
     {
+      //결과를 출력해줌
     }
     //기록 화면
     else if (gameManager.getGameStatus() == STATUS_RECORD)
     {
+      //기록 입력하는 화면 띄워줌
+      drawScore();
+    }
+    else if(gameManager.getGameStatus() == STATUS_PAUSE)
+    {
+      updatePauseMenu(); // outside picture loop
+      if (menu_redraw_required != 0)
+      {
+        u8g.firstPage();
+        do
+        {
+          drawPauseMenu(); // inside picture loop
+        } while (u8g.nextPage());
+        menu_redraw_required = 0; // menu updated, reset redraw flag
+      }
     }
 
     initInputs();
@@ -187,7 +213,7 @@ void loop(void)
 }
 
 //draw_menu
-void drawMenu(void)
+void drawMenu()
 {
   uint8_t i, h;
   u8g_uint_t w, d;
@@ -207,6 +233,70 @@ void drawMenu(void)
     }
     u8g.drawStr(d, i * h, menu_strings[i]);
   }
+}
+
+void drawPauseMenu(){
+  uint8_t i, h;
+  u8g_uint_t w, d;
+  u8g.setFont(u8g_font_6x13);
+  u8g.setFontRefHeightText();
+  u8g.setFontPosTop();
+  h = u8g.getFontAscent() - u8g.getFontDescent();
+  w = u8g.getWidth();
+  for (i = 0; i < SAVE_MENU_ITEMS; i++)
+  { // draw all menu items
+    d = (w - u8g.getStrWidth(save_menu_strings[i])) / 2;
+    u8g.setDefaultForegroundColor();
+    if (i == menu_current)
+    { // current selected menu item
+      u8g.drawBox(0, i * h + 1, w, h); // draw cursor bar
+      u8g.setDefaultBackgroundColor();
+    }
+    u8g.drawStr(d, i * h, save_menu_strings[i]);
+  }
+}
+
+void updatePauseMenu(void)
+{
+  if (down)
+  {
+    menu_current++;
+    if (menu_current >= SAVE_MENU_ITEMS)
+      menu_current = 0;
+    menu_redraw_required = 1;
+  }
+  else if (up)
+  {
+    if (menu_current == 0)
+      menu_current = SAVE_MENU_ITEMS;
+    menu_current--;
+    menu_redraw_required = 1;
+  }
+  else if (push)
+  {
+    if (menu_current == 0)
+    {
+      //계속 하기 선택
+      gameManager.setGameStatus(STATUS_PLAYING);
+    }
+    else if (menu_current == 1)
+    {
+      //저장하기 선택
+      EEPROM.write(EEP_SAVED_ADD, gameManager.getStage());
+      if(savedScore<1) savedScore=1;
+      //로딩 완료 후 플레이 화면으로 이동
+      gameManager.setGameStatus(STATUS_MENU);
+      menu_current=0;
+      menu_redraw_required = 1;
+    }
+  }
+}
+
+void drawScore(){
+  int score = gameManager.getStage(); //지금 몇 스테이지인지 가져옴
+  //TODO int to char*
+  u8g.drawStr(20, 20, "Score : ");
+//  u8g.drawStr(70, 20, score);
 }
 
 void updateMenu(void)
@@ -229,18 +319,22 @@ void updateMenu(void)
   {
     if (menu_current == 0)
     {
+      //새로운 게임 선택
       gameManager.setGameStatus(STATUS_PLAYING);
     }
     else if (menu_current == 1)
     {
-      //TODO: game load하는 로직 추가
+      savedScore = EEPROM.read(EEP_SAVED_ADD);
+      if(savedScore<1) savedScore=1;
 
+      //불러온 스테이지로 설정
+      gameManager.setStage(savedScore);
       //로딩 완료 후 플레이 화면으로 이동
       gameManager.setGameStatus(STATUS_PLAYING);
     }
     else if (menu_current == 2)
     {
-      //지금까지의 기록을 보여줌
+      //최고 기록을 보여줌
       gameManager.setGameStatus(STATUS_RECORD);
     }
   }
@@ -293,6 +387,10 @@ void movePlayer() {
     currentRow--;
   } else if (down && currentRow < MINE_ROW - 1) {
     currentRow++;
+  } else if (push){
+    gameManager.setGameStatus(STATUS_PAUSE);
+    menu_current = 0;
+    menu_redraw_required = 1;
   }
 }
 
@@ -307,21 +405,16 @@ int checkArea() {
   }
 }
 
-void drawStage() {
-
-  u8g.firstPage();
-  do {
-
-  } while (u8g.nextPage());
-}
 
 //스테이지 시작 전 몇 스테이지인지 보여주는 화면
 void drawStageIntro() {
   int stage = gameManager.getStage();
-  //  std::string s = std::to_string(stage);
-  //  char const *pchar = s.c_str();  //use char const* as target type
-  char* str = "hahahahahah";
-  u8g.drawStr(0, 20, str);
+  String stageStr = String(stage);
+  String text = String("Stage ");
+
+  text.concat(stageStr);
+
+  u8g.drawStr(20, 20, text.c_str());
 }
 
 void initMines() {
@@ -365,4 +458,3 @@ void initMines() {
     }
   }
 }
-

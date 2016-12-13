@@ -3,6 +3,7 @@
 #define STATUS_PLAYING 1
 #define STATUS_RESULT 2
 #define STATUS_RECORD 3
+#define STATUS_PAUSE 4
 
 #define MAP_LEFT_MARGIN 24
 #define BLOCK_WIDTH 16
@@ -35,5 +36,6 @@ class GameManager {
     void setGameStatus(int gameStatus);
     void drawMap();
     int getStage();
+    void setStage(int stage);
     void clearStage();
 };

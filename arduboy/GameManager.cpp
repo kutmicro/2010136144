@@ -30,7 +30,10 @@ void GameManager::nextStageStatus(){
   }
 }
 
+void GameManager::setStage(int stage){
+  this->stage = stage;
+}
+
 void GameManager::clearStage() {
   stage++;
 }
-
