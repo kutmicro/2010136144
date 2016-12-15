@@ -13,6 +13,10 @@ void GameManager::setGameStatus(int gameStatus) {
   this->gameStatus = gameStatus;
 }
 
+void GameManager::setStageStatus(int stageStatus){
+  this->stageStatus = stageStatus;
+}
+
 
 int GameManager::getStage() {
   return stage;
