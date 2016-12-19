@@ -14,6 +14,8 @@ GameManager gameManager;
 //input flag
 bool up, down, left, right, push, aBut, bBut;
 
+#define PIEZO_PIN 4
+
 //game datas
 #define EEP_SAVED_ADD 0
 
@@ -76,6 +78,8 @@ void setup(void)
   for (int i = 0; i < 20; i++) {
     EEPROM.write(i, 0);
   }
+
+  pinMode(PIEZO_PIN, OUTPUT);
 }
 
 void loop(void)
@@ -101,6 +105,10 @@ void loop(void)
   {
     //init lTime
     lTime = millis();
+
+    if(left || right || up || down || push){
+      tone(PIEZO_PIN, 600, 100);
+    }
 
 
     //메뉴화면
@@ -178,6 +186,7 @@ void loop(void)
             drawMines();
           } while (u8g.nextPage());
 
+          soundSad(PIEZO_PIN);
           delay(1000);
 
           //최종 점수 보여주기
@@ -208,6 +217,8 @@ void loop(void)
             drawMap();
             drawMines();
           } while (u8g.nextPage());
+
+          soundVictory(PIEZO_PIN);
           //다음 스테이지로 이동
           //1초동안 보여줌
           delay(1000);
@@ -336,9 +347,13 @@ void updateHighScoreMenu() {
 }
 
 void writeScoresToEEPROM(){
+  int k=1;
   for(int i=0; i<3; i++){
       EEPROM.write(i+10, bestUserPoints[i]);
-      EEPROM.write(i+7, bestUsersNames[2][i]);
+      for(int j=0; j<3; j++){
+        EEPROM.write(k, bestUsersNames[i][j]);
+        k++;
+      }
   }
 }
 
@@ -738,5 +753,49 @@ bool isBestScore(int score) {
     return true;
   }
   return false;
+}
+
+
+void soundVictory(int pinNo) {
+ tone(pinNo, 523, 200);
+  delayMicroseconds(1000 - 200);
+
+  tone(pinNo, 523, 200);
+  delayMicroseconds(1000 - 200);
+
+  tone(pinNo, 523, 200);
+  delayMicroseconds(1000 - 200);
+
+  tone(pinNo, 659, 700);
+  tone(pinNo, 784, 500);
+
+  tone(pinNo, 523, 200);
+  delayMicroseconds(1000 - 200);
+
+  tone(pinNo, 523, 200);
+  delayMicroseconds(1000 - 200);
+
+  tone(pinNo, 523, 200);
+  delayMicroseconds(1000 - 200);
+
+  tone(pinNo, 659, 700);
+
+  tone(pinNo, 784, 500);
+  delayMicroseconds(800 - 500);
+
+  tone(pinNo, 784, 400);
+  tone(pinNo, 884, 200);
+  tone(pinNo, 784, 200);
+  tone(pinNo, 687, 200);
+  tone(pinNo, 659, 200);
+  tone(pinNo, 519, 400);
+}
+
+
+void soundSad(int pinNo) {
+  tone(pinNo, 784, 500);
+  tone(pinNo, 738, 500);
+  tone(pinNo, 684, 500);
+  tone(pinNo, 644, 1000);
 }
 
