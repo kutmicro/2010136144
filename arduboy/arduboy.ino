@@ -75,10 +75,6 @@ void setup(void)
   u8g.setRot180();    // rotate screen, if required
   u8g.setFont(u8g_font_6x13);
 
-  for (int i = 0; i < 20; i++) {
-    EEPROM.write(i, 0);
-  }
-
   pinMode(PIEZO_PIN, OUTPUT);
 }
 
