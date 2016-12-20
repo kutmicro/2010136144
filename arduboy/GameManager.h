@@ -21,6 +21,7 @@
 #define START 1
 #define END 2
 #define MINE 3
+#define ROAD 4
 
 #define MINE_ROW 4
 #define MINE_COL 5

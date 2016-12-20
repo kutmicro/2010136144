@@ -140,7 +140,18 @@ void loop(void)
       }
       //지뢰 생성
       else if (stageStatus == STAGE_INIT_MINE) {
-        initMines();
+        int countMine=0;
+        
+        do{
+          countMine=0;
+          initMines();
+
+          for(int i=0; i<MINE_ROW; i++){
+            for(int j=0; j<MINE_COL; j++){
+              if(mines[i][j]==MINE) countMine++;
+            }
+          }
+        } while(countMine<3);
         gameManager.nextStageStatus();
       }
       //지뢰 3초동안 보여주기
@@ -681,6 +692,10 @@ void initMines() {
     e_i = random(0, 4);
   } while (s_i == e_i);
 
+  do {
+    e_j = random(0, 5);
+  } while (s_j == e_j);
+
   //배열 초기화
   for (int i = 0; i < MINE_ROW; i++) {
     for (int j = 0; j < MINE_COL; j++) {
@@ -701,12 +716,13 @@ void initMines() {
   currentRow = s_i;
 
 
-  int k = random(1, 4);
-  for (int j = 1; j < 4; j++) {
-    int i = random(0, 4);
-    mines[i][j] = MINE;
-    if (k == j) {
-      mines[(i + 2) % 4][j] = MINE;
+  int k = random(0, 20);
+  for (int i = 0; i < MINE_ROW; i++) {
+    for (int j = 0; j < MINE_COL; j++) {
+      if(mines[i][j] == EMPTY && k >15){
+        mines[i][j] = MINE;
+      }
+      k = random(0, 20);
     }
   }
 }
