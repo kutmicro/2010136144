@@ -147,7 +147,7 @@ void loop(void)
               if(mines[i][j]==MINE) countMine++;
             }
           }
-        } while(countMine<3);
+        } while(countMine<4 || countMine > 6);
         gameManager.nextStageStatus();
       }
       //지뢰 3초동안 보여주기
@@ -164,7 +164,7 @@ void loop(void)
         do {
           drawMap();
         } while (u8g.nextPage());
-        delay(500);
+        delay(2000);
 
         u8g.firstPage();
         do {
@@ -689,7 +689,7 @@ void initMines() {
   } while (s_i == e_i);
 
   do {
-    e_j = random(0, 5);
+    e_j = random(3, 5);
   } while (s_j == e_j);
 
   //배열 초기화
